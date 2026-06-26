@@ -108,8 +108,7 @@ function Build-Tooltip($Rows) {
     $UsageLamp = [char]::ConvertFromUtf32(0x26AA)
     $Hour5Label = "5" + [char]::ConvertFromUtf32(0x5C0F) + [char]::ConvertFromUtf32(0x65F6)
     $Week1Label = "1" + [char]::ConvertFromUtf32(0x5468) + "  "
-    $NameWidth = 6
-    $LabelWidth = 9
+    $NameWidth = 10
     $lines = @()
     $latestRows = @($Rows | Sort-Object -Property event_time -Descending)
     $row = $latestRows[0]
@@ -120,14 +119,14 @@ function Build-Tooltip($Rows) {
         default { $GreenLamp }
     }
     $name = ShortName $row.name $NameWidth
-    $sessionLabel = ("$lamp $name").PadRight($LabelWidth)
-    $hour5 = ("$UsageLamp $Hour5Label").PadRight($LabelWidth)
-    $week1 = ("$UsageLamp $($Week1Label.Trim())").PadRight($LabelWidth)
-    $tokens = (ValueOr $row.input_tokens_short).PadLeft(4)
-    $window = (ValueOr $row.context_window_short).PadLeft(4)
-    $primary = (ValueOr $usageRow.primary_remaining_short).PadLeft(4)
+    $sessionLabel = "$lamp $name"
+    $hour5 = "$UsageLamp $Hour5Label"
+    $week1 = "$UsageLamp $($Week1Label.Trim())"
+    $tokens = ValueOr $row.input_tokens_short
+    $window = ValueOr $row.context_window_short
+    $primary = ValueOr $usageRow.primary_remaining_short
     $primaryReset = ShortValue (ValueOr $usageRow.primary_reset_short) 5
-    $secondary = (ValueOr $usageRow.secondary_remaining_short).PadLeft(4)
+    $secondary = ValueOr $usageRow.secondary_remaining_short
     $secondaryReset = ShortValue (ValueOr $usageRow.secondary_reset_short) 5
     $lines += "$hour5 $primary $primaryReset"
     $lines += "$week1 $secondary $secondaryReset"
