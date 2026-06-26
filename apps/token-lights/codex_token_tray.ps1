@@ -107,7 +107,8 @@ function Build-Tooltip($Rows) {
     $GreenLamp = [char]::ConvertFromUtf32(0x1F7E2)
     $Hour5Label = "5" + [char]::ConvertFromUtf32(0x5C0F) + [char]::ConvertFromUtf32(0x65F6)
     $Week1Label = "1" + [char]::ConvertFromUtf32(0x5468) + "  "
-    $NameWidth = 12
+    $NameWidth = 6
+    $LabelWidth = 9
     $lines = @()
     $latestRows = @($Rows | Sort-Object -Property event_time -Descending)
     $row = $latestRows[0]
@@ -117,16 +118,19 @@ function Build-Tooltip($Rows) {
         "yellow" { $YellowLamp }
         default { $GreenLamp }
     }
-    $name = (ShortName $row.name $NameWidth).PadRight($NameWidth)
-    $tokens = (ValueOr $row.input_tokens_short).PadLeft(6)
+    $name = ShortName $row.name $NameWidth
+    $sessionLabel = ("$lamp $name").PadRight($LabelWidth)
+    $hour5 = $Hour5Label.PadRight($LabelWidth)
+    $week1 = $Week1Label.Trim().PadRight($LabelWidth)
+    $tokens = (ValueOr $row.input_tokens_short).PadLeft(4)
     $window = (ValueOr $row.context_window_short).PadLeft(4)
     $primary = (ValueOr $usageRow.primary_remaining_short).PadLeft(4)
-    $primaryReset = ValueOr $usageRow.primary_reset_short
+    $primaryReset = ShortValue (ValueOr $usageRow.primary_reset_short) 5
     $secondary = (ValueOr $usageRow.secondary_remaining_short).PadLeft(4)
-    $secondaryReset = ValueOr $usageRow.secondary_reset_short
-    $lines += "$Hour5Label $primary $primaryReset"
-    $lines += "$Week1Label $secondary $secondaryReset"
-    $lines += "$lamp $name $tokens $window"
+    $secondaryReset = ShortValue (ValueOr $usageRow.secondary_reset_short) 5
+    $lines += "$hour5 $primary $primaryReset"
+    $lines += "$week1 $secondary $secondaryReset"
+    $lines += "$sessionLabel $tokens $window"
     if ($lines.Count -eq 0) { return "Codex Token Lights" }
     return ($lines -join "`n")
 }
@@ -136,6 +140,12 @@ function ValueOr($Value, [string]$Fallback = "--") {
     $text = [string]$Value
     if ([string]::IsNullOrWhiteSpace($text)) { return $Fallback }
     return $text
+}
+
+function ShortValue([string]$Value, [int]$Max) {
+    if ([string]::IsNullOrWhiteSpace($Value)) { return "--" }
+    if ($Value.Length -le $Max) { return $Value }
+    return $Value.Substring(0, $Max)
 }
 
 function Refresh-Data {

@@ -362,20 +362,20 @@ internal sealed class TokenPopupForm : Form
 
         Label name = MakeLabel(ShortText(row.Name, 48), 26F, "#111827", true);
         name.Location = new Point(36, 8);
-        name.Size = new Size(panel.Width - 152, 34);
+        name.Size = new Size(panel.Width - 196, 34);
         panel.Controls.Add(name);
 
-        string detail = "window " + row.ContextWindowShort + "  cached " + FormatTokens(row.CachedInputTokens) + "  uncached " + FormatTokens(row.UncachedInputTokens);
+        string detail = "cached " + FormatTokens(row.CachedInputTokens) + "  uncached " + FormatTokens(row.UncachedInputTokens);
         if (includeTime) detail = FormatTimeShort(row.EventTime) + "  " + detail;
         Label sub = MakeLabel(ShortText(detail, 46), 19F, "#6B7280", false);
         sub.Location = new Point(36, 48);
-        sub.Size = new Size(panel.Width - 152, 28);
+        sub.Size = new Size(panel.Width - 196, 28);
         panel.Controls.Add(sub);
 
-        Label tokens = MakeLabel(row.InputTokensShort, 30F, "#111827", true);
+        Label tokens = MakeLabel(row.InputTokensShort + "  " + row.ContextWindowShort, 28F, "#111827", true);
         tokens.TextAlign = ContentAlignment.MiddleRight;
-        tokens.Location = new Point(panel.Width - 104, 22);
-        tokens.Size = new Size(104, 40);
+        tokens.Location = new Point(panel.Width - 150, 22);
+        tokens.Size = new Size(150, 40);
         panel.Controls.Add(tokens);
 
         Panel line = new Panel
