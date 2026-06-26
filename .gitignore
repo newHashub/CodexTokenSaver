@@ -1,0 +1,25 @@
+# Runtime state
+apps/token-lights/settings.json
+apps/token-lights/tray-state.json
+apps/token-lights/codex_token_popup.exe
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local diagnostics and screenshots
+work/
+*.log
+*.out
+*.err
+*.png
+*.jpg
+*.jpeg
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
