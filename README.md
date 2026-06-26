@@ -74,18 +74,21 @@ Token Lights reads active Codex session logs from:
 %USERPROFILE%\.codex\session_index.jsonl
 ```
 
-It uses the latest `last_token_usage.input_tokens` value as the session weight signal:
+It uses two signals:
 
-- Green: below `80k`
-- Yellow: `80k` to below `150k`
-- Red: `150k+`
+- latest `last_token_usage.input_tokens`, which reflects per-turn input weight
+- `input_tokens / model_context_window`, which reflects how close the request is to the model context limit
+
+- Green: input below `80k` and context window below `50%`
+- Yellow: input `80k` to below `150k`, or context window `50%` to below `75%`
+- Red: input `150k+`, or context window `75%+`
 
 The tray icon uses the worst status among recent active sessions. Hover shows:
 
 ```text
 5小时 remaining% reset time
 1周   remaining% reset date
-light conversation name latest input tokens
+light conversation name latest input tokens context%
 ```
 
 Right-click opens a compact control card with:
@@ -182,6 +185,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File apps\token-lights\build-popu
 - Windows-first.
 - Depends on Codex local JSONL log shape.
 - Token Lights is a warning signal, not a precise billing dashboard.
+- Context-window percent depends on `model_context_window` being present in Codex token logs.
 - It does not automate session creation, archival, or account actions.
 
 ## License

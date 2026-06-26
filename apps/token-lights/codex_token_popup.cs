@@ -365,7 +365,7 @@ internal sealed class TokenPopupForm : Form
         name.Size = new Size(panel.Width - 152, 34);
         panel.Controls.Add(name);
 
-        string detail = "cached " + FormatTokens(row.CachedInputTokens) + "  uncached " + FormatTokens(row.UncachedInputTokens);
+        string detail = "window " + row.ContextWindowShort + "  cached " + FormatTokens(row.CachedInputTokens) + "  uncached " + FormatTokens(row.UncachedInputTokens);
         if (includeTime) detail = FormatTimeShort(row.EventTime) + "  " + detail;
         Label sub = MakeLabel(ShortText(detail, 46), 19F, "#6B7280", false);
         sub.Location = new Point(36, 48);
@@ -577,6 +577,9 @@ internal sealed class RowData
     public string InputTokensShort;
     public long CachedInputTokens;
     public long UncachedInputTokens;
+    public long ModelContextWindow;
+    public string ContextWindowShort;
+    public double ContextWindowPercent;
     public double EventTime;
     public string PrimaryRemainingShort;
     public string PrimaryResetShort;
@@ -594,6 +597,9 @@ internal sealed class RowData
             InputTokensShort = StringValue(data, "input_tokens_short"),
             CachedInputTokens = LongValue(data, "cached_input_tokens"),
             UncachedInputTokens = LongValue(data, "uncached_input_tokens"),
+            ModelContextWindow = LongValue(data, "model_context_window"),
+            ContextWindowShort = StringValue(data, "context_window_short", "--"),
+            ContextWindowPercent = DoubleValue(data, "context_window_percent"),
             EventTime = DoubleValue(data, "event_time"),
             PrimaryRemainingShort = StringValue(data, "primary_remaining_short", "--"),
             PrimaryResetShort = StringValue(data, "primary_reset_short", "--"),

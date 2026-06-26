@@ -12,6 +12,8 @@ from typing import Any
 
 GREEN_LIMIT = 80_000
 RED_LIMIT = 150_000
+WINDOW_YELLOW_LIMIT = 50.0
+WINDOW_RED_LIMIT = 75.0
 TAIL_BYTES = 6 * 1024 * 1024
 MAX_LOG_FILES = 80
 DEFAULT_LIMIT = 20
@@ -60,6 +62,8 @@ class DisplayRow:
     input_tokens: int
     cached_input_tokens: int
     uncached_input_tokens: int
+    model_context_window: int | None
+    context_window_percent: float | None
     event_time: float
     primary_remaining_percent: float | None
     primary_window_minutes: int | None
@@ -156,13 +160,18 @@ class CodexTokenScanner:
         return name
 
     def _build_row(self, record: TokenRecord, name: str) -> DisplayRow:
+        window_percent = context_window_percent(
+            record.input_tokens, record.model_context_window
+        )
         return DisplayRow(
             thread_id=record.thread_id,
             name=name,
-            level=level_for(record.input_tokens),
+            level=level_for(record.input_tokens, window_percent),
             input_tokens=record.input_tokens,
             cached_input_tokens=record.cached_input_tokens,
             uncached_input_tokens=record.uncached_input_tokens,
+            model_context_window=record.model_context_window,
+            context_window_percent=window_percent,
             event_time=record.event_time,
             primary_remaining_percent=record.primary_remaining_percent,
             primary_window_minutes=record.primary_window_minutes,
@@ -314,10 +323,20 @@ def short_id(thread_id: str) -> str:
     return thread_id[:8] if thread_id else "unknown"
 
 
-def level_for(input_tokens: int) -> str:
-    if input_tokens >= RED_LIMIT:
+def context_window_percent(input_tokens: int, model_context_window: int | None) -> float | None:
+    if not model_context_window or model_context_window <= 0:
+        return None
+    return max(0.0, (input_tokens / model_context_window) * 100.0)
+
+
+def level_for(input_tokens: int, window_percent: float | None = None) -> str:
+    if input_tokens >= RED_LIMIT or (
+        window_percent is not None and window_percent >= WINDOW_RED_LIMIT
+    ):
         return "red"
-    if input_tokens >= GREEN_LIMIT:
+    if input_tokens >= GREEN_LIMIT or (
+        window_percent is not None and window_percent >= WINDOW_YELLOW_LIMIT
+    ):
         return "yellow"
     return "green"
 
@@ -343,6 +362,12 @@ def format_percent(value: float | None) -> str:
     if abs(value - round(value)) < 0.05:
         return f"{value:.0f}%"
     return f"{value:.1f}%"
+
+
+def format_window_percent(value: float | None) -> str:
+    if value is None:
+        return "--"
+    return f"{value:.0f}%"
 
 
 def format_reset_short(timestamp: int | None) -> str:
@@ -371,7 +396,10 @@ def truncate(text: str, width: int) -> str:
 def print_once(rows: list[DisplayRow]) -> None:
     for row in rows:
         lamp = {"green": "GREEN", "yellow": "YELLOW", "red": "RED"}[row.level]
-        print(f"{lamp}  {truncate(row.name, 28):<28}  {format_tokens(row.input_tokens):>7}")
+        print(
+            f"{lamp}  {truncate(row.name, 28):<28}  "
+            f"{format_tokens(row.input_tokens):>7}  {format_window_percent(row.context_window_percent):>4}"
+        )
 
 
 def rows_to_json(rows: list[DisplayRow]) -> str:
@@ -384,6 +412,9 @@ def rows_to_json(rows: list[DisplayRow]) -> str:
             "input_tokens_short": format_tokens(row.input_tokens),
             "cached_input_tokens": row.cached_input_tokens,
             "uncached_input_tokens": row.uncached_input_tokens,
+            "model_context_window": row.model_context_window,
+            "context_window_percent": row.context_window_percent,
+            "context_window_short": format_window_percent(row.context_window_percent),
             "event_time": row.event_time,
             "primary_remaining_percent": row.primary_remaining_percent,
             "primary_remaining_short": format_percent(row.primary_remaining_percent),

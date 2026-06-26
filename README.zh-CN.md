@@ -74,18 +74,23 @@ Token Lights 读取活跃 Codex 会话日志：
 %USERPROFILE%\.codex\session_index.jsonl
 ```
 
-它使用最近一次 `last_token_usage.input_tokens` 作为“这个会话继续一次大概有多重”的信号：
+它同时使用两个信号：
 
-- 绿色：低于 `80k`
-- 黄色：`80k` 到低于 `150k`
-- 红色：`150k+`
+- 最近一次 `last_token_usage.input_tokens`：表示单轮输入有多重
+- `input_tokens / model_context_window`：表示离模型上下文窗口上限有多近
+
+判灯规则：
+
+- 绿色：input 低于 `80k`，且窗口占用低于 `50%`
+- 黄色：input `80k` 到低于 `150k`，或窗口占用 `50%` 到低于 `75%`
+- 红色：input `150k+`，或窗口占用 `75%+`
 
 托盘图标显示最近活跃会话里的最严重状态。悬停显示：
 
 ```text
 5小时 剩余额度 重置时间
 1周   剩余额度 重置日期
-灯    会话名称 最新 input tokens
+灯    会话名称 最新 input tokens 窗口占用%
 ```
 
 右键打开控制卡片，包含：
@@ -182,6 +187,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File apps\token-lights\build-popu
 - Windows 优先。
 - 依赖 Codex 本地 JSONL 日志结构。
 - Token Lights 是预警信号，不是精确计费面板。
+- 窗口占用百分比依赖 Codex token 日志里存在 `model_context_window`。
 - 不会自动创建新会话、自动归档或自动操作账号。
 
 ## 许可证

@@ -119,13 +119,14 @@ function Build-Tooltip($Rows) {
     }
     $name = (ShortName $row.name $NameWidth).PadRight($NameWidth)
     $tokens = (ValueOr $row.input_tokens_short).PadLeft(6)
+    $window = (ValueOr $row.context_window_short).PadLeft(4)
     $primary = (ValueOr $usageRow.primary_remaining_short).PadLeft(4)
     $primaryReset = ValueOr $usageRow.primary_reset_short
     $secondary = (ValueOr $usageRow.secondary_remaining_short).PadLeft(4)
     $secondaryReset = ValueOr $usageRow.secondary_reset_short
     $lines += "$Hour5Label $primary $primaryReset"
     $lines += "$Week1Label $secondary $secondaryReset"
-    $lines += "$lamp $name $tokens"
+    $lines += "$lamp $name $tokens $window"
     if ($lines.Count -eq 0) { return "Codex Token Lights" }
     return ($lines -join "`n")
 }
