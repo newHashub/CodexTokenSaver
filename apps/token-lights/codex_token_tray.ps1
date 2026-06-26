@@ -105,6 +105,7 @@ function Build-Tooltip($Rows) {
     $RedLamp = [char]::ConvertFromUtf32(0x1F534)
     $YellowLamp = [char]::ConvertFromUtf32(0x1F7E1)
     $GreenLamp = [char]::ConvertFromUtf32(0x1F7E2)
+    $UsageLamp = [char]::ConvertFromUtf32(0x26AA)
     $Hour5Label = "5" + [char]::ConvertFromUtf32(0x5C0F) + [char]::ConvertFromUtf32(0x65F6)
     $Week1Label = "1" + [char]::ConvertFromUtf32(0x5468) + "  "
     $NameWidth = 6
@@ -120,8 +121,8 @@ function Build-Tooltip($Rows) {
     }
     $name = ShortName $row.name $NameWidth
     $sessionLabel = ("$lamp $name").PadRight($LabelWidth)
-    $hour5 = $Hour5Label.PadRight($LabelWidth)
-    $week1 = $Week1Label.Trim().PadRight($LabelWidth)
+    $hour5 = ("$UsageLamp $Hour5Label").PadRight($LabelWidth)
+    $week1 = ("$UsageLamp $($Week1Label.Trim())").PadRight($LabelWidth)
     $tokens = (ValueOr $row.input_tokens_short).PadLeft(4)
     $window = (ValueOr $row.context_window_short).PadLeft(4)
     $primary = (ValueOr $usageRow.primary_remaining_short).PadLeft(4)
