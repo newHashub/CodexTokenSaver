@@ -122,7 +122,7 @@ function Build-Tooltip($Rows) {
     $name = ShortName $row.name $NameWidth
     $sessionLabel = "$lamp $name"
     $hour5 = "$UsageLamp $Hour5Label"
-    $week1 = "$UsageLamp $($Week1Label.Trim())$WideSpace$WideSpace"
+    $week1 = "$UsageLamp $($Week1Label.Trim())$WideSpace"
     $tokens = ValueOr $row.input_tokens_short
     $window = ValueOr $row.context_window_short
     $primary = ValueOr $usageRow.primary_remaining_short
