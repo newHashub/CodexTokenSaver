@@ -128,9 +128,9 @@ function Build-Tooltip($Rows) {
     $primaryReset = ShortValue (ValueOr $usageRow.primary_reset_short) 5
     $secondary = ValueOr $usageRow.secondary_remaining_short
     $secondaryReset = ShortValue (ValueOr $usageRow.secondary_reset_short) 5
-    $lines += "$hour5`t$primary $primaryReset"
-    $lines += "$week1`t$secondary $secondaryReset"
-    $lines += "$sessionLabel`t$tokens $window"
+    $lines += "$hour5 $primary $primaryReset"
+    $lines += "$week1 $secondary $secondaryReset"
+    $lines += "$sessionLabel $tokens $window"
     if ($lines.Count -eq 0) { return "Codex Token Lights" }
     return ($lines -join "`n")
 }
